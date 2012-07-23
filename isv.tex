@@ -1,0 +1,244 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+% Set the document to use 12point text by default, single column, and
+% two-sided printing. We use the memoir class because it allows more
+% flexible handling of font sizes. 
+\documentclass[12pt,onecolumn,twoside,oldfontcommands,openright,showtrims]{memoir}
+
+\setstocksize{10in}{7in}
+\settrimmedsize{9in}{6in}{*}
+\settrims{0.5in}{0.5in}
+\settypeblocksize{7in}{4.5in}{}
+% \setlrmargins{1in}{1in}
+% PGS - The following doesn't work
+% \setulmarginsandblock{1in}{1in}{*}
+% \setmarginalnotes{0.5in}{0.75in}{0.1in}
+% \checkandfixthelayout
+
+\usepackage{xltxtra,fontspec,xunicode}
+\usepackage{lettrine}
+\usepackage{multicol}
+\usepackage{graphics}
+\usepackage{morefloats}
+\usepackage{everypage}
+\usepackage{type1cm}
+\usepackage{pdfpages}
+
+% Make all footnotes on a page in a single paragraph, instead of being
+% on separate lines
+\paragraphfootnotes
+% Make foot note symbols flush with foot note, and with no indent.
+\setlength{\footmarkwidth}{0.0em}
+
+% Set which TTF fonts to use for the various LaTeX text types.
+% Have the system scale fonts so that lower case characters are the
+% same size for the same point size.
+\defaultfontfeatures{Scale=MatchLowercase}
+% main font is indeed the font that will be used for the main text.
+% For the ISV, this is the Padua font series
+\setmainfont[ Extension = .ttf ,
+Ligatures=TeX,
+UprightFont = * ,
+ItalicFont = *-italic,
+BoldFont = *-bold,
+BoldItalicFont = *-bold-italic
+]{padua}
+
+% Add a hook on everypage to pull in the cross-references for the
+% verses displayed on the page.  Put them into a margin float (in
+% twocolumn format we would put it into a meta-column in the space
+% between the columns).
+% XXX - Need to figure out how to position the text on the page, as
+% this hook runs without sensible margins set.
+\AddEverypageHook{\write18{./getcrossreferences \rightmark \leftmark}{
+\begin{minipage}[t]{2in}
+\include{crossreferences}
+\end{minipage}
+}}
+
+% Not sure what this is for
+\setcounter{collectmore}{-1}
+
+% Set page dimensions
+% XXX - Disabled. To be replaced by proper memoir way of doing it
+% \setlength{\textheight}{9in}\setlength{\topmargin}{0.25in}
+% \setlength{\textwidth}{6in}\setlength{\oddsidemargin}{.7685in}\setlength{\evensidemargin}{.7685in}
+
+
+\pagestyle{myheadings}
+\makeatletter
+    \def\@evenhead{}%
+    \def\@oddhead{}%
+\makeatother
+\sloppy\hyphenpenalty=2000
+\newcommand{\ShortTitle}[1]{\def\webbook{#1}\par\goodbreak\bigskip\setcounter{footnote}{0}}
+\newcommand{\BookTitle}[1]{\par\goodbreak\bigskip{\parindent=0mm\begin{center}{\small\bfseries{\textsf{\LARGE #1\nopagebreak}}}\end{center}}\addcontentsline{toc}{section}{#1}\nopagebreak\par\nobreak}
+\newcommand{\PsalmChap}[1]{\bigskip{\bfseries\parindent=0mm\LARGE Psalm #1}\def\webchap{#1:}\def\vchap{}\nobreak\nopagebreak{\par\medskip}}
+\newcommand{\Chap}[1]{\def\webchap{#1:}\def\vchap{#1:}\def\chapnum{#1}}
+\newcommand{\OneChap}{\def\webchap{}\def\vchap{}}
+\newcommand{\Heading}[1]{\vspace{0.5\baselineskip}{\fontspec{eterna-bold.ttf}\parindent=0mm\par{#1}\def\vchap{}\nobreak\nopagebreak\par}}
+\newcommand{\Parallel}[1]{{\fontspec{padua-bold-italic.ttf}\parindent=0mm\par{#1}\def\vchap{}\nobreak\nopagebreak\par}}
+% The following is the original from the WEB, which put chapter:verse as the
+% superscript for each verse.  For ISV, we just want verse numbers,
+% so removed the \vchap.
+% \newcommand{\VS}[1]{$^{\vchap#1}$\markboth{\webbook\ \webchap #1}{\webbook\ \webchap #1}}	% Verse number
+% \newcommand{\VerseOne}{\markboth{\webbook\ \webchap 1}{\webbook\ \webchap 1}$^{\vchap 1}$}
+\newcommand{\VerseNumber}[1]{$^{#1}$\markboth{\webbook\ \webchap #1}{\webbook\
+    \webchap #1}}	% Verse number
+\newcommand{\VerseOne}{\markboth{\webbook\ \webchap 1}{\webbook\ \webchap 1}$^1$}
+% Use drop-caps for first verse of each chapter.
+\newcommand{\VerseOneDrop}{\markboth{\webbook\ \webchap
+    1}{\webbook\ \webchap 1}\lettrine[loversize=0.15]{\chapnum}{}}
+% and for the trickier case where the dropcap is at the start of a
+% quote by Jesus
+% lettrine by default uses smallcaps for rest of first word.  Change back to default shape.
+% \renewcommand{\LettrineFont}{}
+% \renewcommand{\LettrineTextFont}{}
+% Insert one line of blank space before poetry
+\def\PoetryMode{0}
+\newcommand{\PPE}{\if\PoetryMode1\vspace{\baselineskip}\fi\par\parindent=3mm\def\PoetryMode{0}}
+\newcommand{\PFL}{\if\PoetryMode0\vspace{\baselineskip}\fi\par\parindent=0mm\hskip3.0em\hangindent4.5em\def\PoetryMode{1}}
+\newcommand{\ProseStart}{\parindent=3mm}
+\newcommand{\PoetryStart}{\parindent=0mm}
+\newcommand{\PNL}{\par\parindent=6mm\hangindent4.5em\hskip3.0em}
+\newcommand{\LBR}{\\}
+\newcommand{\FTST}{}
+\newcommand{\FTNT}[1]{\ifnum\value{footnote}>25\setcounter{footnote}{0}\fi\footnote{#1}}
+\newcommand{\PsalmBookTitle}[1]{\goodbreak\bigskip{\Large\hangindent=0mm\parindent=0mm\textsf #1}\nobreak\nopagebreak}
+\newcommand{\PsalmTitle}[1]{\nopagebreak{\medskip\hangindent=0mm\parindent=5mm #1\nobreak\par\nobreak\medskip\nopagebreak}}
+\newcommand{\Speaker}[1]{#1}
+\newcommand{\QR}{}
+\newcommand{\QL}{}
+\newcommand{\ULB}{}
+\newcommand{\ULE}{}
+% \newcommand{\JFont}{\normalfont\small}		% Words of Jesus - normal type
+\newcommand{\JFont}{\bfseries\small}		% Words of Jesus - bold face
+\newcommand{\BFont}{\normalfont\small}	% Other words
+\renewcommand{\thefootnote}{\alph{footnote}}
+\onecolumn
+\begin{document}
+\frontmatter
+\pagenumbering{roman}
+% ISV presentation page
+\includepdf[fitpaper=true]{ISVPresentationPage.pdf}
+% PGS - Disable WEB front matter until we replace it with the ISV one
+% \input{front}
+\makeatletter%
+% \renewcommand\tableofcontents{%
+%    \if@twocolumn
+%      \@restonecoltrue\onecolumn
+%    \else
+%      \@restonecolfalse
+%    \fi
+%	\textsf{{\LARGE Table of Contents}
+%	\medskip
+%    \@starttoc{toc}}%
+%    \if@restonecol\twocolumn\fi
+%    }
+\makeatother%
+\tableofcontents\clearpage
+% \begin{center}
+% \textsf{Notes}
+% \end{center}
+\clearpage
+% PGS - Remove WEB preface until we replace it with an ISV one
+% \input{preface}\clearpage%
+\makeatletter%
+\def\@evenhead{}%
+\def\@oddhead{}%
+\makeatother%
+% PGS - re-enable to switch face that first book starts on
+% \begin{center}
+% \textsf{Notes}
+% \end{center}
+% \clearpage
+\makeatletter%
+\mainmatter%
+\def\@oddhead{{\fontspec{padua.ttf}\small{\rightmark\hfil{The
+        Holy Bible}}}}%
+\def\@evenhead{{\fontspec{padua.ttf}\small{International Standard
+      Version\hfil\leftmark}}}%
+\def\@oddfoot{{\fontspec{padua.ttf}\small{\hfil\thepage\hfil}}}%
+\def\@evenfoot{{\fontspec{padua.ttf}\small{\hfil\thepage\hfil}}}%
+\makeatother%
+
+% \twocolumn
+% \begin{multicols}{1}%
+\addcontentsline{toc}{chapter}{The New Testament}\pagenumbering{arabic}\clearpage
+\input{01ge.tex}
+\input{02ex.tex}
+\input{03lev.tex}
+\input{04num.tex}
+\input{05deu.tex}
+\input{06jos.tex}
+\input{07jdg.tex}
+\input{08rut.tex}
+\input{09sa1.tex}
+\input{10sa2.tex}
+\input{11ki1.tex}
+\input{12ki2.tex}
+\input{13ch1.tex}
+\input{14ch2.tex}
+\input{15ezr.tex}
+\input{16neh.tex}
+\input{17est.tex}
+\input{18job.tex}
+\input{19psa.tex}
+\input{20pro.tex}
+\input{21ecc.tex}
+\input{22sos.tex}
+\input{23isa.tex}
+\input{24jer.tex}
+\input{25lam.tex}
+\input{26eze.tex}
+\input{27da.tex}
+\input{28hos.tex}
+\input{29joe.tex}
+\input{30amo.tex}
+\input{31oba.tex}
+\input{32jo.tex}
+\input{33mic.tex}
+\input{34nah.tex}
+\input{35hab.tex}
+\input{36zep.tex}
+\input{37hag.tex}
+\input{38zec.tex}
+\input{39mal.tex}
+\input{40mat.tex}
+\input{41mar.tex}
+\input{42luk.tex}
+\input{43joh.tex}
+\input{44act.tex}
+\input{45rom.tex}
+\input{46cor1.tex}
+\input{47cor2.tex}
+\input{48gal.tex}
+\input{49eph.tex}
+\input{50php.tex}
+\input{51col.tex}
+\input{52th1.tex}
+\input{53th2.tex}
+\input{54ti1.tex}
+\input{55ti2.tex}
+\input{56tit.tex}
+\input{57phm.tex}
+\input{58heb.tex}
+\input{59jam.tex}
+\input{60pe1.tex}
+\input{61pe2.tex}
+\input{62jo1.tex}
+\input{63jo2.tex}
+\input{64jo3.tex}
+\input{65jud.tex}
+\input{66rev.tex}
+\clearpage
+\def\@oddhead{\hfil\thepage\hfil}%
+\def\@evenhead{\hfil}%
+\makeatother%
+% PGS disabled multicols for ftnright to work
+% \end{multicols}
+\clearpage
+% PGS disabled EPS inserts that are getting replaced for the ISV anyway.
+% \resizebox{\textwidth}{!}{\includegraphics{map.eps}}\addcontentsline{toc}{section}{Map}
+\clearpage
+\end{document}
